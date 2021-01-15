@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import HelloWorld from "./components/HelloWorld";
 import SettingProject  from "./view/setting/project";
-
+import SettingDemand from "./view/setting/demand"
 const routerHistory = createWebHashHistory();
 
 export default createRouter({
@@ -16,6 +16,11 @@ export default createRouter({
             path: '/setting/project',
             name: 'SettingProject',
             component: SettingProject
+        },
+        {
+            path: '/setting/demand',
+            name: 'SettingDemand',
+            component: SettingDemand
         }
     ],
 });

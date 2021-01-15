@@ -2,7 +2,7 @@
   <a-layout id="components-layout-demo-top-side">
     <a-layout-header class="header">
       <div class="logo" />
-      <a-menu
+      <!-- <a-menu
         theme="dark"
         mode="horizontal"
         v-model:selectedKeys="selectedKeys1"
@@ -17,7 +17,7 @@
         <a-menu-item key="3">
           nav 3
         </a-menu-item>
-      </a-menu>
+      </a-menu> -->
     </a-layout-header>
     <a-layout-content style="padding: 0 0px">
       <a-breadcrumb style="margin: 16px 0">
