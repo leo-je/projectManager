@@ -43,7 +43,7 @@
               <a-menu-item key="2" @click="to('/setting/project')"
                 >项目维护</a-menu-item
               >
-              <a-menu-item key="3" @click="to('/setting/proggram')"
+              <a-menu-item key="3" @click="to('/setting/program')"
                 >工程维护</a-menu-item
               >
             </a-sub-menu>
@@ -80,7 +80,7 @@ export default {
     },
   },
   beforeCreate() {
-    this.$router.push({ path: "/setting/demand" });
+    this.$router.push({ path: "/setting/program" });
   },
 };
 </script>
