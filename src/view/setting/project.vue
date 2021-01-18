@@ -12,7 +12,7 @@
       <template #action="{ text: record }">
         <span>
           <a-divider type="vertical" />
-          <a class="onSelect" @click="deleteProject(record.id)">Delete</a>
+          <a class="onSelect" @click="deleteProject(record.id)">删除</a>
           <a-divider type="vertical" />
           <a class="onSelect" @click="editProject(record)">编辑</a>
         </span>
@@ -48,7 +48,7 @@
           <a-form-item label="项目信息">
             <a-textarea
               style="min-width: 400px"
-              v-model:value="project.projetInfo"
+              v-model:value="project.info"
               placeholder="请输入项目信息"
               :rows="6"
             />
@@ -59,6 +59,8 @@
   </section>
 </template>
 <script>
+import http from "../../utils/http";
+
 // 表头配置
 const columns = [
   {
@@ -69,8 +71,8 @@ const columns = [
   {
     title: "项目信息",
     //className: "column-projetInfo",
-    dataIndex: "projetInfo",
-    slots: { customRender: "projetInfo" },
+    dataIndex: "info",
+    slots: { customRender: "info" },
   },
   //   {
   //     title: "Address",
@@ -83,47 +85,71 @@ const columns = [
   },
 ];
 
-const data = [
-  {
-    id: "idid",
-    key: "1",
-    name: "John Brown",
-    projetInfo: "￥300,000.00",
-    address: "New York No. 1 Lake Park",
-  },
-  {
-    key: "2",
-    name: "Jim Green",
-    projetInfo: "￥1,256,000.00",
-    address: "London No. 1 Lake Park",
-  },
-  {
-    key: "3",
-    name: "Joe Black",
-    projetInfo: "￥120,000.00",
-    address: "Sidney No. 1 Lake Park",
-  },
-];
+// const data = [
+//   {
+//     id: "idid",
+//     key: "1",
+//     name: "John Brown",
+//     projetInfo: "￥300,000.00",
+//     address: "New York No. 1 Lake Park",
+//   },
+//   {
+//     key: "2",
+//     name: "Jim Green",
+//     projetInfo: "￥1,256,000.00",
+//     address: "London No. 1 Lake Park",
+//   },
+//   {
+//     key: "3",
+//     name: "Joe Black",
+//     projetInfo: "￥120,000.00",
+//     address: "Sidney No. 1 Lake Park",
+//   },
+// ];
 
 export default {
   name: "SettingProject",
   data() {
     return {
       wtitle: "添加",
-      data,
+      data: [],
       columns,
       addEditVisible: false,
       confirmLoading: false,
       project: {
         id: "",
         name: "",
-        projetInfo: "",
+        info: "",
       },
     };
   },
+  mounted() {
+    this.getList();
+  },
   methods: {
+    getList() {
+      var _this = this;
+      http("post", "./pm/busi/project/list")
+        .then(function (data) {
+          console.log(data);
+          if (data != null && data.length > 0) {
+            _this.data = data;
+          }
+        })
+        .catch(function (e) {
+          console.error(e);
+        });
+    },
     deleteProject: function (id) {
-      console.log(id);
+      var _this = this;
+      http("get", "./pm/busi/project/delete", { id: id })
+        .then(function (data) {
+          console.log(data);
+          _this.getList();
+        })
+        .catch(function (e) {
+          console.error(e);
+        });
     },
     editProject: function (row) {
       this.showWindows("编辑项目", JSON.parse(JSON.stringify(row)));
@@ -140,10 +166,21 @@ export default {
     handleOk() {
       console.log(this.project);
       this.confirmLoading = true;
-      setTimeout(() => {
-        this.addEditVisible = false;
-        this.confirmLoading = false;
-      }, 2000);
+      var _this = this;
+      http("post", "./pm/busi/project/add", this.project)
+        .then(function (data) {
+          console.log(data);
+          _this.addEditVisible = false;
+          _this.getList();
+        })
+        .catch(function (e) {
+          console.error(e);
+          _this.confirmLoading = false;
+        });
+      // setTimeout(() => {
+      //   this.addEditVisible = false;
+      //   this.confirmLoading = false;
+      // }, 2000);
     },
   },
 };

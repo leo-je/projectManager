@@ -35,33 +35,20 @@
           >
             <a-sub-menu key="sub1">
               <template #title>
-                <span><user-outlined />分组菜单 1</span>
+                <span><user-outlined />菜单</span>
               </template>
-              <a-menu-item key="1">option1</a-menu-item>
-              <a-menu-item key="2">option2</a-menu-item>
-              <a-menu-item key="3">option3</a-menu-item>
-              <a-menu-item key="4">option4</a-menu-item>
-            </a-sub-menu>
-            <a-sub-menu key="sub2">
-              <template #title>
-                <span><laptop-outlined />分组菜单 2</span>
-              </template>
-              <a-menu-item key="5">option5</a-menu-item>
-              <a-menu-item key="6">option6</a-menu-item>
-              <a-menu-item key="7">option7</a-menu-item>
-              <a-menu-item key="8">option8</a-menu-item>
-            </a-sub-menu>
-            <a-sub-menu key="sub3">
-              <template #title>
-                <span><notification-outlined />分组菜单 3</span>
-              </template>
-              <a-menu-item key="9">option9</a-menu-item>
-              <a-menu-item key="10">option10</a-menu-item>
-              <a-menu-item key="11">option11</a-menu-item>
-              <a-menu-item key="12">option12</a-menu-item>
+              <a-menu-item key="1" @click="to('/setting/demand')"
+                >需求管理</a-menu-item
+              >
+              <a-menu-item key="2" @click="to('/setting/project')"
+                >项目维护</a-menu-item
+              >
+              <a-menu-item key="3" @click="to('/setting/proggram')"
+                >工程维护</a-menu-item
+              >
             </a-sub-menu>
           </a-menu>
-        </a-layout-sider >
+        </a-layout-sider>
         <a-layout-content :style="{ padding: '0 24px', minHeight: '630px' }">
           <router-view />
         </a-layout-content>
@@ -74,23 +61,26 @@
 </template>
 
 <script>
-import { UserOutlined, LaptopOutlined, NotificationOutlined } from '@ant-design/icons-vue';
+import { UserOutlined } from "@ant-design/icons-vue";
 
 export default {
   data() {
     return {
-      selectedKeys1: ['2'],
-      selectedKeys2: ['1'],
-      openKeys: ['sub1'],
+      selectedKeys1: ["2"],
+      selectedKeys2: ["1"],
+      openKeys: ["sub1"],
     };
   },
   components: {
     UserOutlined,
-    LaptopOutlined,
-    NotificationOutlined,
+  },
+  methods: {
+    to(path) {
+      this.$router.push({ path });
+    },
   },
   beforeCreate() {
-    this.$router.push({ path: "/setting/project" });
+    this.$router.push({ path: "/setting/demand" });
   },
 };
 </script>

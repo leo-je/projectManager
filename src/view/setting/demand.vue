@@ -2,7 +2,7 @@
   <section>
     <div class="add-button">
       <a-config-provider :auto-insert-space-in-button="false">
-        <a-button type="primary" @click="addProjet"> 添加 </a-button>
+        <a-button type="primary" @click="addDemand"> 添加 </a-button>
       </a-config-provider>
     </div>
     <a-table :columns="columns" :data-source="data" bordered>
@@ -19,6 +19,19 @@
           </span>
         </div>
       </template>
+
+      <template #scheduledFinishTime="{ text }">
+        <span>
+          {{ formatTime(text) }}
+        </span>
+      </template>
+
+      <template #scheduledOnLineTime="{ text }">
+        <span>
+          {{ formatTime(text) }}
+        </span>
+      </template>
+
       <template #status="{ text: record }">
         <a>{{ record.status }}</a>
         <a-divider type="vertical" />
@@ -29,13 +42,13 @@
       </template>
       <template #action="{ text: record }">
         <span>
-          <a class="onSelect" @click="deleteProject(record.id)">上升+1</a>
+          <a class="onSelect" @click="deleteProject(record.id)">上升</a>
           <a-divider type="vertical" />
-          <a class="onSelect" @click="deleteProject(record.id)">下降-1</a>
+          <a class="onSelect" @click="deleteProject(record.id)">下降</a>
           <a-divider type="vertical" />
-          <a class="onSelect" @click="editProject(record)">编辑</a>
+          <a class="onSelect" @click="editDemand(record)">编辑</a>
           <a-divider type="vertical" />
-          <a class="onSelect" @click="deleteProject(record.id)">删除</a>
+          <a class="onSelect" @click="deleteDemand(record.id)">删除</a>
         </span>
       </template>
       <!-- <template #title="">
@@ -61,11 +74,18 @@
             <a-col :span="12">
               <a-form-item label="项目名称" has-feedback>
                 <a-select
-                  v-model:value="demand.projectName"
+                  v-model:value="demand.projectId"
                   placeholder="Please select a country"
+                  @change="selectProject"
                 >
-                  <a-select-option value="china"> China </a-select-option>
-                  <a-select-option value="usa"> U.S.A </a-select-option>
+                  <a-select-option
+                    v-for="item in projects"
+                    :key="item"
+                    :value="item.id"
+                  >
+                    {{ item.name }}
+                  </a-select-option>
+                  <!-- <a-select-option value="usa"> U.S.A </a-select-option> -->
                 </a-select>
               </a-form-item>
             </a-col>
@@ -73,7 +93,7 @@
               <a-form-item label="需求名称">
                 <a-input
                   placeholder="请输入项目名称"
-                  v-model:value="demand.demandName"
+                  v-model:value="demand.name"
                 />
               </a-form-item>
             </a-col>
@@ -81,14 +101,31 @@
           <a-row>
             <a-col :span="12">
               <a-form-item label="计划开始时间">
-                <a-date-picker show-time placeholder="选择时间" /> </a-form-item
-            ></a-col>
+                <a-date-picker
+                  v-model:value="demand.scheduledFinishTime"
+                  show-time
+                  placeholder="选择时间"
+                />
+              </a-form-item>
+            </a-col>
             <a-col :span="12">
               <a-form-item label="计划上线时间">
-                <a-date-picker show-time placeholder="选择时间" />
+                <a-date-picker
+                  v-model:value="demand.scheduledOnLineTime"
+                  show-time
+                  placeholder="选择时间"
+                />
               </a-form-item>
             </a-col>
           </a-row>
+
+          <a-form-item label="挂载版本">
+            <a-input
+              placeholder="请输入版本号"
+              v-model:value="demand.version"
+            />
+          </a-form-item>
+
           <a-form-item label="工程/分支">
             <a-table
               :columns="programmeColumns"
@@ -160,7 +197,7 @@
           <a-form-item label="需求信息">
             <a-textarea
               style="min-width: 400px"
-              v-model:value="demand.demandInfo"
+              v-model:value="demand.info"
               placeholder="请输入项目信息"
               :rows="6"
             />
@@ -171,6 +208,9 @@
   </section>
 </template>
 <script>
+import http from "../../utils/http";
+import { formatTime } from "../../utils/date";
+var ft = formatTime;
 // 表头配置
 const columns = [
   {
@@ -180,26 +220,31 @@ const columns = [
   },
   {
     title: "需求名称",
-    dataIndex: "demandName",
+    dataIndex: "name",
     slots: { customRender: "name" },
   },
   {
     title: "需求信息",
     //className: "column-projetInfo",
-    dataIndex: "demandInfo",
-    slots: { customRender: "demandInfo" },
+    dataIndex: "info",
+    slots: { customRender: "info" },
+  },
+  {
+    title: "挂载版本",
+    dataIndex: "version",
+    slots: { customRender: "version" },
   },
   {
     title: "计划完成时间",
     //className: "column-projetInfo",
-    dataIndex: "demandInfo",
-    slots: { customRender: "demandInfo" },
+    dataIndex: "scheduledFinishTime",
+    slots: { customRender: "scheduledFinishTime" },
   },
   {
     title: "计划上线时间",
     //className: "column-projetInfo",
-    dataIndex: "demandInfo",
-    slots: { customRender: "demandInfo" },
+    dataIndex: "scheduledOnLineTime",
+    slots: { customRender: "scheduledOnLineTime" },
   },
   {
     title: "工程/分支",
@@ -230,46 +275,6 @@ const columns = [
   },
 ];
 
-const data = [
-  {
-    id: "idid",
-    key: "1",
-    projectName: "xxx项目",
-    demandName: "xxx优化",
-    status: "未开始",
-    demandInfo: "￥300,000.00",
-    programmeList: [
-      {
-        key: "1",
-        programmeName: "cloud-office-busi-finance",
-        branchName: "fix/5056",
-      },
-      {
-        key: "2",
-        programmeName: "cloud-office-busi-hr",
-        branchName: "fix/5056",
-      },
-    ],
-    address: "New York No. 1 Lake Park",
-  },
-  {
-    id: "2",
-    projectName: "xxx项目",
-    demandName: "xx2优化",
-    status: "未开始",
-    demandInfo: "￥1,256,000.00",
-    address: "London No. 1 Lake Park",
-  },
-  {
-    id: "3",
-    projectName: "xxx项目",
-    demandName: "Joe Black",
-    status: "未开始",
-    demandInfo: "￥120,000.00",
-    address: "Sidney No. 1 Lake Park",
-  },
-];
-
 const programmeColumns = [
   {
     title: "工程名称",
@@ -295,8 +300,9 @@ export default {
   data() {
     return {
       wtitle: "添加",
-      data,
+      data:[],
       columns,
+      projects: [],
       programmeColumns,
       programmeList,
       programmeHasEdit: false,
@@ -306,21 +312,61 @@ export default {
         id: "",
         projectName: "",
         projectId: "",
-        demandName: "",
-        demandInfo: "",
+        name: "",
+        info: "",
       },
     };
   },
+  mounted() {
+    this.getprojects();
+    this.getList();
+  },
   methods: {
-    deleteProject: function (id) {
-      console.log(id);
+    formatTime(data) {
+      return ft(data);
     },
-    editProject: function (row) {
-      console.log(this.programmeHasEdit);
+    getList() {
+      var _this = this;
+      http("post", "./pm/busi/demand/list")
+        .then(function (data) {
+          console.log(data);
+          data.forEach(element => {
+            if(element.scheduledOnLineTime)element.scheduledOnLineTime = new Date(element.scheduledOnLineTime)
+            if(element.scheduledFinishTime)element.scheduledFinishTime = new Date(element.scheduledFinishTime)
+          });
+          _this.data = data;
+        })
+        .catch(function (e) {
+          console.error(e);
+        });
+    },
+    getprojects() {
+      var _this = this;
+      http("post", "./pm/busi/project/list")
+        .then(function (data) {
+          console.log(data);
+          _this.projects = data;
+        })
+        .catch(function (e) {
+          console.error(e);
+        });
+    },
+    deleteDemand: function (id) {
+      var _this = this;
+      http("get", "./pm/busi/demand/delete", { id: id })
+        .then(function (data) {
+          console.log(data);
+          _this.getList();
+        })
+        .catch(function (e) {
+          console.error(e);
+        });
+    },
+    editDemand: function (row) {
       this.programmeList = row.programmeList;
       this.showWindows("编辑项目", JSON.parse(JSON.stringify(row)));
     },
-    addProjet() {
+    addDemand() {
       this.programmeList = [];
       this.showWindows("添加项目", {});
     },
@@ -330,13 +376,27 @@ export default {
       this.wtitle = title;
       this.addEditVisible = true;
     },
+    selectProject(key) {
+      var _project = this.projects.filter((e) => e.id === key);
+      this.demand.projectName = _project[0].name;
+    },
     handleOk() {
       console.log(this.demand);
+      console.log(this.demand.scheduledOnLineTime);
       this.confirmLoading = true;
-      setTimeout(() => {
-        this.addEditVisible = false;
-        this.confirmLoading = false;
-      }, 2000);
+
+      var _this = this;
+      http("post", "./pm/busi/demand/add", this.demand)
+        .then(function (data) {
+          console.log(data);
+          _this.addEditVisible = false;
+          _this.confirmLoading = false;
+          _this.getList();
+        })
+        .catch(function (e) {
+          console.error(e);
+          _this.confirmLoading = false;
+        });
     },
     editProgramme(row) {
       this.programmeHasEdit = true;
