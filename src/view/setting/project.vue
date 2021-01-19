@@ -171,6 +171,7 @@ export default {
         .then(function (data) {
           console.log(data);
           _this.addEditVisible = false;
+          _this.confirmLoading = false;
           _this.getList();
         })
         .catch(function (e) {

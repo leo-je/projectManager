@@ -40,22 +40,22 @@
           :wrapper-col="wrapperCol"
         >
           <a-form-item label="项目名称" has-feedback>
-                <a-select
-                  v-model:value="program.projectId"
-                  placeholder="Please select a country"
-                  @change="selectProject"
-                >
-                  <a-select-option
-                    v-for="item in projects"
-                    :key="item"
-                    :value="item.id"
-                  >
-                    {{ item.name }}
-                  </a-select-option>
-                  <!-- <a-select-option value="usa"> U.S.A </a-select-option> -->
-                </a-select>
-              </a-form-item>
-                    <a-form-item label="工程名称">
+            <a-select
+              v-model:value="program.projectId"
+              placeholder="Please select a country"
+              @change="selectProject"
+            >
+              <a-select-option
+                v-for="item in projects"
+                :key="item"
+                :value="item.id"
+              >
+                {{ item.name }}
+              </a-select-option>
+              <!-- <a-select-option value="usa"> U.S.A </a-select-option> -->
+            </a-select>
+          </a-form-item>
+          <a-form-item label="工程名称">
             <a-input
               placeholder="请输入项目名称"
               v-model:value="program.name"
@@ -90,7 +90,7 @@ const columns = [
     dataIndex: "name",
     slots: { customRender: "name" },
   },
-    {
+  {
     title: "工程信息",
     //className: "column-projetInfo",
     dataIndex: "info",
@@ -107,34 +107,34 @@ const columns = [
   },
 ];
 
-const data = [
-  {
-    id: "idid",
-    name: "John Brown",
-    projectName: "ERP系统",
-    projectId: "899",
-    info: "New York No. 1 Lake Park",
-  },
-  {
-    key: "2",
-    name: "Jim Green",
-    projetInfo: "￥1,256,000.00",
-    address: "London No. 1 Lake Park",
-  },
-  {
-    key: "3",
-    name: "Joe Black",
-    projetInfo: "￥120,000.00",
-    address: "Sidney No. 1 Lake Park",
-  },
-];
+// const data = [
+//   {
+//     id: "idid",
+//     name: "John Brown",
+//     projectName: "ERP系统",
+//     projectId: "899",
+//     info: "New York No. 1 Lake Park",
+//   },
+//   {
+//     key: "2",
+//     name: "Jim Green",
+//     projetInfo: "￥1,256,000.00",
+//     address: "London No. 1 Lake Park",
+//   },
+//   {
+//     key: "3",
+//     name: "Joe Black",
+//     projetInfo: "￥120,000.00",
+//     address: "Sidney No. 1 Lake Park",
+//   },
+// ];
 
 export default {
   name: "SettingProject",
   data() {
     return {
       wtitle: "添加",
-      data,
+      data: [],
       columns,
       projects: [],
       addEditVisible: false,
@@ -147,12 +147,13 @@ export default {
     };
   },
   mounted() {
-    //this.getList();
+    this.getprojects();
+    this.getList();
   },
   methods: {
     getList() {
       var _this = this;
-      http("post", "./pm/busi/project/list")
+      http("post", "./pm/busi/program/list")
         .then(function (data) {
           console.log(data);
           if (data != null && data.length > 0) {
@@ -162,6 +163,22 @@ export default {
         .catch(function (e) {
           console.error(e);
         });
+    },
+    getprojects() {
+      var _this = this;
+      http("post", "./pm/busi/project/list")
+        .then(function (data) {
+          console.log(data);
+          _this.projects = data;
+        })
+        .catch(function (e) {
+          console.error(e);
+        });
+    },
+    selectProject(key) {
+      var _project = this.projects.filter((e) => e.id === key);
+      this.program.projectName = _project[0].name;
+      console.log(this.program);
     },
     deleteProject: function (id) {
       var _this = this;
@@ -190,10 +207,11 @@ export default {
       console.log(this.project);
       this.confirmLoading = true;
       var _this = this;
-      http("post", "./pm/busi/project/add", this.project)
+      http("post", "./pm/busi/program/add", this.program)
         .then(function (data) {
           console.log(data);
           _this.addEditVisible = false;
+          _this.confirmLoading = false;
           _this.getList();
         })
         .catch(function (e) {
