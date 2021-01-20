@@ -26,6 +26,18 @@
         </span>
       </template>
 
+      <template #jiraCode="{ text }">
+        <span>
+          <a
+            v-if="hasJiraLink(text)"
+            target="view_window"
+            :href="getJiraLink(text)"
+            >{{ text }}</a
+          >
+          <span v-else>{{ text }}</span>
+        </span>
+      </template>
+
       <template #scheduledOnLineTime="{ text }">
         <span>
           {{ formatTime(text) }}
@@ -42,10 +54,6 @@
       </template>
       <template #action="{ text: record }">
         <span>
-          <a class="onSelect" @click="up(record.id)">上升</a>
-          <a-divider type="vertical" />
-          <a class="onSelect" @click="down(record.id)">下降</a>
-          <a-divider type="vertical" />
           <a class="onSelect" @click="editDemand(record)">编辑</a>
           <a-divider type="vertical" />
           <a class="onSelect" @click="deleteDemand(record.id)">删除</a>
@@ -118,12 +126,22 @@
               </a-form-item>
             </a-col>
           </a-row>
+          <a-row>
+            <a-col :span="12">
+              <a-form-item label="挂载版本">
+                <a-input
+                  placeholder="请输入版本号"
+                  v-model:value="demand.version"
+                /> </a-form-item
+            ></a-col>
+            <a-col :span="12">
+              <a-form-item label="排序">
+                <a-input placeholder="" v-model:value="demand.sort" />
+              </a-form-item> </a-col
+          ></a-row>
 
-          <a-form-item label="挂载版本">
-            <a-input
-              placeholder="请输入版本号"
-              v-model:value="demand.version"
-            />
+          <a-form-item label="jira编号">
+            <a-input placeholder="" v-model:value="demand.jiraCode" />
           </a-form-item>
 
           <a-form-item label="工程/分支">
@@ -253,7 +271,7 @@
 
     <div class="lookInfoWindows">
       <a-modal :title="信息" :width="900" v-model:visible="lookInfoVisible">
-        <p>{{ demand.info }}</p>
+        <p>{{ demand.log }}</p>
       </a-modal>
     </div>
   </section>
@@ -279,6 +297,12 @@ const columns = [
     //className: "column-projetInfo",
     dataIndex: "info",
     slots: { customRender: "info" },
+  },
+    {
+    title: "jira",
+    //className: "column-projetInfo",
+    dataIndex: "jiraCode",
+    slots: { customRender: "jiraCode" },
   },
   {
     title: "挂载版本",
@@ -377,6 +401,7 @@ export default {
         id: "",
         projectName: "",
         projectId: "",
+        log: "",
         name: "",
         info: "",
       },
@@ -388,34 +413,32 @@ export default {
     this.getprograms();
   },
   methods: {
-    up(id) {
-      var _this = this;
-      http("get", "./pm/busi/demand/up", { id: id })
-        .then(function (data) {
-          console.log(data);
-          _this.getList();
-        })
-        .catch(function (e) {
-          console.error(e);
-        });
+    getJiraLink(text) {
+      return 'http://jira.caih.local/browse/'+text;
     },
-    down(id) {
-      var _this = this;
-      http("get", "./pm/busi/demand/down", { id: id })
-        .then(function (data) {
-          console.log(data);
-          _this.getList();
-        })
-        .catch(function (e) {
-          console.error(e);
-        });
+    hasJiraLink(text) {
+      console.log(text);
+      if (text ) {
+        return true;
+      } else {
+        return false;
+      }
     },
     lookInfo(row) {
+      let list = [];
+      if (row.log) {
+        list = row.log.split("||");
+        console.log(list);
+      }
       this.$info({
         title: "信息",
         content: (
           <div>
-            <p>{row.info}</p>
+            <p>
+              {list.map((item) => (
+                <div>{item}</div>
+              ))}
+            </p>
           </div>
         ),
         onOk() {},

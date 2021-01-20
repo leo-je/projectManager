@@ -80,7 +80,7 @@ export default {
     },
   },
   beforeCreate() {
-    this.$router.push({ path: "/setting/program" });
+    this.$router.push({ path: "/setting/demand" });
   },
 };
 </script>
