@@ -292,12 +292,6 @@ const columns = [
     dataIndex: "name",
     slots: { customRender: "name" },
   },
-  {
-    title: "需求信息",
-    //className: "column-projetInfo",
-    dataIndex: "info",
-    slots: { customRender: "info" },
-  },
     {
     title: "jira",
     //className: "column-projetInfo",
@@ -332,6 +326,12 @@ const columns = [
     //className: "column-projetInfo",
     key: "action",
     slots: { customRender: "status" },
+  },
+  {
+    title: "需求信息",
+    //className: "column-projetInfo",
+    dataIndex: "info",
+    slots: { customRender: "info" },
   },
   {
     title: "信息",

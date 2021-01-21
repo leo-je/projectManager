@@ -5,6 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "docker": "vue-cli-service build && docker build . -t pm-static ",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
