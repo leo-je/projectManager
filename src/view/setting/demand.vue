@@ -5,7 +5,12 @@
         <a-button type="primary" @click="addDemand"> 添加 </a-button>
       </a-config-provider>
     </div>
-    <a-table :columns="columns" :data-source="data" bordered>
+    <a-table
+      :columns="columns"
+      :data-source="data"
+      bordered
+      :pagination="false"
+    >
       <template #name="{ text }">
         <span>
           <a>{{ text }}</a>
@@ -45,7 +50,9 @@
       </template>
 
       <template #status="{ text: record }">
-        <span>{{ getDemandStatus(record.status) }}</span>
+        <a-tag :color="getDemandStatusTagColor(record.status)">{{
+          getDemandStatus(record.status)
+        }}</a-tag>
         <a-divider type="vertical" />
         <a class="onSelect" @click="updateStatus(record)">更新</a>
       </template>
@@ -67,6 +74,22 @@
       Footer
     </template> -->
     </a-table>
+    <a-pagination
+      style="text-align: right; margin-top: 16px"
+      v-model="pageInfo.pageNum"
+      :page-size-options="pageInfo.pageSizeOptions"
+      :total="pageInfo.total"
+      show-size-changer
+      :page-size="pageInfo.pageSize"
+      @showSizeChange="onShowSizeChange"
+      @change="onPaginationChange"
+    >
+      <!-- <template slot="buildOptionText" slot-scope="props"> -->
+      <template v-slot:buildOptionText="props">
+        <span v-if="props.value !== '50'">{{ props.value }}条/页</span>
+        <span v-if="props.value === '50'">全部</span>
+      </template>
+    </a-pagination>
 
     <!-- 添加/编辑对话框 -->
     <div class="addEditWindown">
@@ -292,7 +315,7 @@ const columns = [
     dataIndex: "name",
     slots: { customRender: "name" },
   },
-    {
+  {
     title: "jira",
     //className: "column-projetInfo",
     dataIndex: "jiraCode",
@@ -371,12 +394,12 @@ const programColumns = [
 const programList = [];
 
 const statusList = [
-  { id: "0", name: "未开始" },
-  { id: "1", name: "进行中" },
-  { id: "2", name: "完成开发" },
-  { id: "3", name: "已上线" },
-  { id: "4", name: "中止开发" },
-  { id: "5", name: "废弃" },
+  { id: "0", name: "未开始", tag: "orange" },
+  { id: "1", name: "进行中", tag: "#2db7f5" },
+  { id: "2", name: "完成开发", tag: "#108ee9" },
+  { id: "3", name: "已上线", tag: "#87d068" },
+  { id: "4", name: "中止开发", tag: "red" },
+  { id: "5", name: "废弃", tag: "#f50" },
 ];
 
 export default {
@@ -397,6 +420,12 @@ export default {
       lookInfoVisible: false,
       updateStatusConfirmLoading: false,
       updateStatusVisible: false,
+      pageInfo: {
+        pageSizeOptions: ["10", "20", "30", "40", "50"],
+        pageNum: 1,
+        pageSize: 10,
+        total: 0,
+      },
       demand: {
         id: "",
         projectName: "",
@@ -413,12 +442,22 @@ export default {
     this.getprograms();
   },
   methods: {
+    onPaginationChange(page, pageSize){
+      this.pageInfo.pageNum = page;
+      this.pageInfo.pageSize = pageSize;
+      this.getList();
+    },
+    onShowSizeChange(current, pageSize) {
+      this.pageInfo.pageNum = 1;
+      this.pageInfo.pageSize = pageSize;
+      this.getList();
+    },
     getJiraLink(text) {
-      return 'http://jira.caih.local/browse/'+text;
+      return "http://jira.caih.local/browse/" + text;
     },
     hasJiraLink(text) {
       console.log(text);
-      if (text ) {
+      if (text) {
         return true;
       } else {
         return false;
@@ -450,13 +489,21 @@ export default {
       if (s != null && s.length > 0) {
         return s[0].name;
       }
-      return "未知";
+      return "/";
+    },
+    getDemandStatusTagColor(status) {
+      console.log(status);
+      var s = this.statusList.filter((e) => e.id === status);
+      if (s != null && s.length > 0) {
+        return s[0].tag;
+      }
+      return "blue";
     },
     updateStatusHandleOk() {
       console.log(this.demand);
       this.updateStatusConfirmLoading = true;
       var _this = this;
-      http("post", "./pm/busi/demand/add", {
+      http("post", "./pm/busi/demand/updateStatus", {
         id: this.demand.id,
         status: this.demand.status,
       })
@@ -480,20 +527,24 @@ export default {
     },
     getList() {
       var _this = this;
-      http("post", "./pm/busi/demand/list")
+      http("post", "./pm/busi/demand/list", {pageNum:this.pageInfo.pageNum,pageSize:this.pageInfo.pageSize})
         .then(function (data) {
           console.log(data);
-          data.forEach((element) => {
-            if (element.scheduledOnLineTime)
-              element.scheduledOnLineTime = new Date(
-                element.scheduledOnLineTime
-              );
-            if (element.scheduledFinishTime)
-              element.scheduledFinishTime = new Date(
-                element.scheduledFinishTime
-              );
-          });
-          _this.data = data;
+          if (data && data.data) {
+            var _data = data.data;
+            _data.forEach((element) => {
+              if (element.scheduledOnLineTime)
+                element.scheduledOnLineTime = new Date(
+                  element.scheduledOnLineTime
+                );
+              if (element.scheduledFinishTime)
+                element.scheduledFinishTime = new Date(
+                  element.scheduledFinishTime
+                );
+            });
+            _this.data = _data;
+            _this.pageInfo.total = data.page.totalCount
+          }
         })
         .catch(function (e) {
           console.error(e);
