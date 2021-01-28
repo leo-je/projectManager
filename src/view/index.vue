@@ -1,7 +1,11 @@
 <template>
   <a-layout id="components-layout-demo-top-side">
     <a-layout-header class="header">
-      <div class="logo" />
+      <div class="logo">
+        <!-- <img src="logo.png"/> -->
+        <span>pm</span>
+      </div>
+
       <!-- <a-menu
         theme="dark"
         mode="horizontal"
@@ -87,10 +91,21 @@ export default {
 
 <style>
 #components-layout-demo-top-side .logo {
+  text-align: left;
+  line-height: 25px;
   width: 120px;
   height: 31px;
-  background: rgba(255, 255, 255, 0.2);
+  /* background: rgba(255, 255, 255, 0.2); */
   margin: 16px 28px 16px 0;
   float: left;
+}
+#components-layout-demo-top-side .logo img {
+  width: 31px;
+  height: 31px;
+}
+
+#components-layout-demo-top-side .logo span {
+  font-size: 40px;
+  color: aquamarine;
 }
 </style>
