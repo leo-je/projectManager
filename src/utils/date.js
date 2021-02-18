@@ -18,7 +18,22 @@ var formatTime = _date => {
     return _r;
 }
 
+var formatTime_yy_MM_dd = _date => {
+    if (typeof _date !== Date)
+        var date = new Date(_date)
+    const year = date.getFullYear()
+    const month = date.getMonth() + 1
+    const day = date.getDate()
+    const hour = date.getHours()
+    const minute = date.getMinutes()
+    const second = date.getSeconds()
+    var _r = [year, month, day].map(formatNumber).join('-');
+    console.log(_r);
+    return _r;
+}
+
 export {
     formatNumber,
-    formatTime
+    formatTime,
+    formatTime_yy_MM_dd
 }

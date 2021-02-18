@@ -301,8 +301,8 @@
 </template>
 <script>
 import http from "../../utils/http";
-import { formatTime } from "../../utils/date";
-var ft = formatTime;
+import { formatTime_yy_MM_dd } from "../../utils/date";
+var ft = formatTime_yy_MM_dd;
 // 表头配置
 const columns = [
   {
@@ -349,12 +349,14 @@ const columns = [
     //className: "column-projetInfo",
     key: "action",
     slots: { customRender: "status" },
+    width: 150,
   },
   {
     title: "需求信息",
     //className: "column-projetInfo",
     dataIndex: "info",
     slots: { customRender: "info" },
+    width: 150,
   },
   {
     title: "信息",
