@@ -9,21 +9,22 @@ var instance = axios.create({
  
 //------------------- 一、请求拦截器 忽略
 instance.interceptors.request.use(function (config) {
- 
+    console.log(config);
     return config;
 }, function (error) {
+    console.log(error);
     // 对请求错误做些什么
-    
+    console.log('请求拦截器报错');
     return Promise.reject(error);
 });
  
 //----------------- 二、响应拦截器 忽略
 instance.interceptors.response.use(function (response) {
-    
+    console.log(response);
     return response.data;
 }, function (error) {
     // 对响应错误做点什么
-    console.log('拦截器报错');
+    console.log('响应拦截器报错');
     return Promise.reject(error);
 });
  

@@ -1,6 +1,6 @@
 
 module.exports = {
-  //publicPath: "./", // 公共路径(必须有的)
+  publicPath: "./", // 公共路径(必须有的)
   // outputDir: "dist", // 输出文件目录
   // assetsDir: "static", //静态资源文件名称
   lintOnSave: false,
@@ -14,6 +14,13 @@ module.exports = {
         //pathRewrite: {
         // '^/api': ''    //代理的路径 //是否移除api三个字段,
         //}
+      },
+      '/api-user': {
+        target: 'http://127.0.0.1:8080',   //代理接口（ps:这里为随意打的地址）
+        changeOrigin: true,
+        // pathRewrite: {
+        // '^/api-user': ''    //代理的路径 //是否移除api三个字段,
+        // }
       }
     }
   },

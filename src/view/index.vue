@@ -41,7 +41,7 @@
               <template #title>
                 <span><user-outlined />菜单</span>
               </template>
-              <a-menu-item key="1" @click="to('/setting/demand')"
+              <!-- <a-menu-item key="1" @click="to('/setting/demand')"
                 >需求管理</a-menu-item
               >
               <a-menu-item key="2" @click="to('/setting/project')"
@@ -49,6 +49,9 @@
               >
               <a-menu-item key="3" @click="to('/setting/program')"
                 >工程维护</a-menu-item
+              > -->
+              <a-menu-item key="3" @click="to('/setting/roles')"
+                >角色维护</a-menu-item
               >
             </a-sub-menu>
           </a-menu>
@@ -84,7 +87,7 @@ export default {
     },
   },
   beforeCreate() {
-    this.$router.push({ path: "/setting/demand" });
+    this.$router.push({ path: "/setting/roles" });
   },
 };
 </script>

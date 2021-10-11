@@ -5,10 +5,15 @@
         <a-button type="primary" @click="addProjet"> 添加 </a-button>
       </a-config-provider>
     </div>
-    <a-table :columns="columns" :data-source="data" bordered>
+    <a-table :columns="columns" :data-source="data" bordered rowKey="id">
       <template #name="{ text }">
         <a>{{ text }}</a>
       </template>
+
+      <template #status="{ text }">
+        <a>{{ text == "1" ? "启用" : "关闭" }}</a>
+      </template>
+
       <template #action="{ text: record }">
         <span>
           <a-divider type="vertical" />
@@ -35,23 +40,18 @@
         @ok="handleOk"
       >
         <a-form
-          :model="project"
+          :model="roleInfo"
           :label-col="labelCol"
           :wrapper-col="wrapperCol"
         >
-          <a-form-item label="项目名称">
+          <a-form-item label="角色名称">
             <a-input
-              placeholder="请输入项目名称"
-              v-model:value="project.name"
+              placeholder="请输入角色名称"
+              v-model:value="roleInfo.name"
             />
           </a-form-item>
-          <a-form-item label="项目信息">
-            <a-textarea
-              style="min-width: 400px"
-              v-model:value="project.info"
-              placeholder="请输入项目信息"
-              :rows="6"
-            />
+          <a-form-item label="角色状态">
+            <a-switch v-model:checked="roleInfo.statusChecked" />
           </a-form-item>
         </a-form>
       </a-modal>
@@ -64,15 +64,15 @@ import http from "../../utils/http";
 // 表头配置
 const columns = [
   {
-    title: "项目名称",
+    title: "角色名称",
     dataIndex: "name",
     slots: { customRender: "name" },
   },
   {
-    title: "项目信息",
+    title: "角色状态",
     //className: "column-projetInfo",
-    dataIndex: "info",
-    slots: { customRender: "info" },
+    dataIndex: "status",
+    slots: { customRender: "status" },
   },
   //   {
   //     title: "Address",
@@ -84,31 +84,8 @@ const columns = [
     slots: { customRender: "action" },
   },
 ];
-
-// const data = [
-//   {
-//     id: "idid",
-//     key: "1",
-//     name: "John Brown",
-//     projetInfo: "￥300,000.00",
-//     address: "New York No. 1 Lake Park",
-//   },
-//   {
-//     key: "2",
-//     name: "Jim Green",
-//     projetInfo: "￥1,256,000.00",
-//     address: "London No. 1 Lake Park",
-//   },
-//   {
-//     key: "3",
-//     name: "Joe Black",
-//     projetInfo: "￥120,000.00",
-//     address: "Sidney No. 1 Lake Park",
-//   },
-// ];
-
 export default {
-  name: "SettingProject",
+  name: "SettingRoles",
   data() {
     return {
       wtitle: "添加",
@@ -116,10 +93,10 @@ export default {
       columns,
       addEditVisible: false,
       confirmLoading: false,
-      project: {
+      roleInfo: {
         id: "",
         name: "",
-        info: "",
+        statusChecked: true,
       },
     };
   },
@@ -129,7 +106,7 @@ export default {
   methods: {
     getList() {
       var _this = this;
-      http("post", "/pm/busi/project/list")
+      http("post", "/api-user/busi/roles/list")
         .then(function (data) {
           console.log(data);
           if (data != null && data.length > 0) {
@@ -142,7 +119,7 @@ export default {
     },
     deleteProject: function (id) {
       var _this = this;
-      http("get", "./pm/busi/project/delete", { id: id })
+      http("get", "/api-user/busi/roles/delete", { id: id })
         .then(function (data) {
           console.log(data);
           _this.getList();
@@ -152,22 +129,32 @@ export default {
         });
     },
     editProject: function (row) {
-      this.showWindows("编辑项目", JSON.parse(JSON.stringify(row)));
+      if (row.status == "1") {
+        row.statusChecked = true;
+      } else {
+        row.statusChecked = false;
+      }
+      this.showWindows("编辑角色", JSON.parse(JSON.stringify(row)));
     },
     addProjet() {
-      this.showWindows("添加项目", {});
+      this.showWindows("添加角色", {});
     },
     showWindows: function (title, row) {
       console.log(row);
-      this.project = row;
-      this.wtitle = "添加项目";
+      this.roleInfo = row;
+      this.wtitle = title;
       this.addEditVisible = true;
     },
     handleOk() {
-      console.log(this.project);
+      console.log(this.roleInfo);
       this.confirmLoading = true;
       var _this = this;
-      http("post", "./pm/busi/project/add", this.project)
+      if (this.roleInfo.statusChecked) {
+        this.roleInfo.status = "1";
+      } else {
+        this.roleInfo.status = "0";
+      }
+      http("post", "/api-user/busi/roles/save", this.roleInfo)
         .then(function (data) {
           console.log(data);
           _this.addEditVisible = false;
