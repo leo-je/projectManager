@@ -1,12 +1,14 @@
 import axios from 'axios';
+import router from '../router';
 
 //创建axios的一个实例 
 var instance = axios.create({
     //baseURL:'http://127.0.0.1:8080/',//接口统一域名
-    timeout: 6000                                                       //设置超时
+    timeout: 6000
+    //设置超时
 })
- 
- 
+instance.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
 //------------------- 一、请求拦截器 忽略
 instance.interceptors.request.use(function (config) {
     console.log(config);
@@ -17,17 +19,23 @@ instance.interceptors.request.use(function (config) {
     console.log('请求拦截器报错');
     return Promise.reject(error);
 });
- 
+
 //----------------- 二、响应拦截器 忽略
 instance.interceptors.response.use(function (response) {
     console.log(response);
     return response.data;
 }, function (error) {
-    // 对响应错误做点什么
+    // 对响应错误
+    if (error && error.response && error.response.status == 401) {
+        router.replace({
+            path: '/login'
+        })
+        location.reload()
+    }
     console.log('响应拦截器报错');
     return Promise.reject(error);
 });
- 
+
 /**
  * 使用es6的export default导出了一个函数，导出的函数代替axios去帮我们请求数据，
  * 函数的参数及返回值如下：
@@ -44,10 +52,10 @@ export default function (method, url, data = null) {
         return instance.get(url, { params: data })
     } else if (method == 'delete') {
         return instance.delete(url, { params: data })
-    }else if(method == 'put'){
-        return instance.put(url,data)
-    }else{
-        console.error('未知的method'+method)
+    } else if (method == 'put') {
+        return instance.put(url, data)
+    } else {
+        console.error('未知的method' + method)
         return false
     }
 }
