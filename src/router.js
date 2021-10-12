@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory } from "vue-router";
+import dashboard from './view/dashboard'
 import HelloWorld from "./components/HelloWorld";
 import SettingProject  from "./view/setting/project";
 import SettingDemand from "./view/setting/demand";
@@ -13,32 +14,38 @@ export default createRouter({
         {
             path: '/',
             name: 'dashboard',
-            component: HelloWorld
-        },
-        {
-            path: '/setting/project',
-            name: 'SettingProject',
-            component: SettingProject
-        },
-        {
-            path: '/setting/demand',
-            name: 'SettingDemand',
-            component: SettingDemand
-        },
-        {
-            path: '/setting/program',
-            name: 'SettingProgram',
-            component: SettingProgram
-        },
-        {
-            path: '/setting/roles',
-            name: 'SettingRoles',
-            component: SettingRoles
-        },
-        {
-            path: '/setting/users',
-            name: 'SettingUsers',
-            component: SettingUsers
+            component: dashboard,
+            children:[
+                {
+                    path: '/setting/project',
+                    name: 'SettingProject',
+                    component: SettingProject
+                },
+                {
+                    path: '/setting/demand',
+                    name: 'SettingDemand',
+                    component: SettingDemand
+                },
+                {
+                    path: '/setting/program',
+                    name: 'SettingProgram',
+                    component: SettingProgram
+                },
+                {
+                    path: '/setting/roles',
+                    name: 'SettingRoles',
+                    component: SettingRoles
+                },
+                {
+                    path: '/setting/users',
+                    name: 'SettingUsers',
+                    component: SettingUsers
+                }
+            ]
+        },{
+            path: '/401',
+            name: 'noAuth',
+            component: HelloWorld,
         }
     ],
 });

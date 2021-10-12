@@ -31,7 +31,7 @@ instance.interceptors.response.use(function (response) {
         //     path: '/'
         // })
         // location.reload()
-        router.push({ path: "/" });
+        router.push({ path: "/401" });
     }
     console.log('响应拦截器报错');
     return Promise.reject(error);

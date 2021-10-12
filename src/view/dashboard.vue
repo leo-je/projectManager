@@ -5,23 +5,9 @@
         <!-- <img src="logo.png"/> -->
         <span>pm</span>
       </div>
-
-      <!-- <a-menu
-        theme="dark"
-        mode="horizontal"
-        v-model:selectedKeys="selectedKeys1"
-        :style="{ lineHeight: '64px' }"
-      >
-        <a-menu-item key="1">
-          nav 1
-        </a-menu-item>
-        <a-menu-item key="2">
-          nav 2
-        </a-menu-item>
-        <a-menu-item key="3">
-          nav 3
-        </a-menu-item>
-      </a-menu> -->
+      <div class="userInfo">
+        <span id="nickName">你好,{{ user.nickName }}</span>
+      </div>
     </a-layout-header>
     <a-layout-content style="padding: 0 0px">
       <a-breadcrumb style="margin: 16px 0">
@@ -37,9 +23,23 @@
             v-model:openKeys="openKeys"
             style="height: 100%"
           >
+            <a-sub-menu key="sub0">
+              <template #title>
+                <span><user-outlined />项目管理</span>
+              </template>
+              <a-menu-item key="1" @click="to('/setting/demand')"
+                >需求管理</a-menu-item
+              >
+              <a-menu-item key="2" @click="to('/setting/project')"
+                >项目维护</a-menu-item
+              >
+              <a-menu-item key="3" @click="to('/setting/program')"
+                >工程维护</a-menu-item
+              >
+            </a-sub-menu>
             <a-sub-menu key="sub1">
               <template #title>
-                <span><user-outlined />菜单</span>
+                <span><user-outlined />系统维护</span>
               </template>
               <!-- <a-menu-item key="1" @click="to('/setting/demand')"
                 >需求管理</a-menu-item
@@ -50,8 +50,12 @@
               <a-menu-item key="3" @click="to('/setting/program')"
                 >工程维护</a-menu-item
               > -->
-              <a-menu-item key="3" @click="to('/setting/roles')">角色维护</a-menu-item>
-              <a-menu-item key="4" @click="to('/setting/users')">用户管理</a-menu-item>
+              <a-menu-item key="3" @click="to('/setting/roles')"
+                >角色维护</a-menu-item
+              >
+              <a-menu-item key="4" @click="to('/setting/users')"
+                >用户管理</a-menu-item
+              >
             </a-sub-menu>
           </a-menu>
         </a-layout-sider>
@@ -75,6 +79,9 @@ export default {
       selectedKeys1: ["2"],
       selectedKeys2: ["1"],
       openKeys: ["sub1"],
+      user: {
+        nickName: "xxx",
+      },
     };
   },
   components: {
@@ -85,8 +92,25 @@ export default {
       this.$router.push({ path });
     },
   },
+  mounted() {
+    let _this = this;
+    this.$store
+      .dispatch("LoginByUsername", {})
+      .then(() => {
+        console.log("user",this.user);
+        let user = sessionStorage.getItem("user");
+        user = JSON.parse(user)
+        // this.user = JSON.parse(user)
+        this.user = Object.assign(this.user,user)
+      })
+      .catch((e) => {
+        console.error("dash", e);
+        this.$message.error(e.message);
+        this.loading = false;
+      });
+  },
   beforeCreate() {
-    //this.$router.push({ path: "/setting/roles" });
+    this.$router.push({ path: "/setting/roles" });
   },
 };
 </script>
@@ -108,6 +132,21 @@ export default {
 
 #components-layout-demo-top-side .logo span {
   font-size: 40px;
+  color: aquamarine;
+}
+#components-layout-demo-top-side .userInfo {
+  position: absolute;
+  text-align: left;
+  line-height: 25px;
+  width: 120px;
+  height: 31px;
+  /* background: rgba(255, 255, 255, 0.2); */
+  margin: 16px 28px 16px 0;
+  right: 5px;
+}
+
+#nickName {
+  font-size:16px;
   color: aquamarine;
 }
 </style>

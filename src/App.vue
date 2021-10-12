@@ -1,15 +1,11 @@
 <template>
-  <Index msg="Welcome to Your Vue.js App"/>
+  <router-view />
 </template>
 
 <script>
-import Index from './view/index'
-import hellow from './components/HelloWorld.vue'
 export default {
   name: 'App',
   components: {
-    Index,
-    hellow:hellow
   }
 }
 </script>
