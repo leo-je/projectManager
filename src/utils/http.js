@@ -27,10 +27,11 @@ instance.interceptors.response.use(function (response) {
 }, function (error) {
     // 对响应错误
     if (error && error.response && error.response.status == 401) {
-        router.replace({
-            path: '/login'
-        })
-        location.reload()
+        // router.replace({
+        //     path: '/'
+        // })
+        // location.reload()
+        router.push({ path: "/" });
     }
     console.log('响应拦截器报错');
     return Promise.reject(error);

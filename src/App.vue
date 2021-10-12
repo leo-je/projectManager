@@ -4,11 +4,12 @@
 
 <script>
 import Index from './view/index'
-
+import hellow from './components/HelloWorld.vue'
 export default {
   name: 'App',
   components: {
-    Index
+    Index,
+    hellow:hellow
   }
 }
 </script>

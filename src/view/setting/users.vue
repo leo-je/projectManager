@@ -1,0 +1,220 @@
+<template>
+  <section>
+    <div class="add-button">
+      <a-config-provider :auto-insert-space-in-button="false">
+        <a-button type="primary" @click="addProjet"> 添加 </a-button>
+      </a-config-provider>
+    </div>
+    <a-table :columns="columns" :data-source="data" bordered rowKey="id">
+      <template #username="{ text }">
+        <span>{{ text }}</span>
+      </template>
+
+      <template #sex="{ text }">
+        <span>{{ text == "1" ? "男" : "女" }}</span>
+      </template>
+
+      <template #birthday="{ text }">
+        <span>{{ formatTime(text) }}</span>
+      </template>
+
+      <template #status="{ text }">
+        <a>{{ text == "1" ? "启用" : "关闭" }}</a>
+      </template>
+
+      <template #action="{ text: record }">
+        <span>
+          <a-divider type="vertical" />
+          <a class="onSelect" @click="deleteProject(record.id)">删除</a>
+          <a-divider type="vertical" />
+          <a class="onSelect" @click="editProject(record)">编辑</a>
+        </span>
+      </template>
+      <!-- <template #title="">
+      Header
+    </template> -->
+
+      <!-- <template #footer="">
+      Footer
+    </template> -->
+    </a-table>
+
+    <!-- 对话框 -->
+    <div class="addEditWindown">
+      <a-modal
+        :title="wtitle"
+        v-model:visible="addEditVisible"
+        :confirm-loading="confirmLoading"
+        @ok="handleOk"
+      >
+        <a-form :model="user" :label-col="labelCol" :wrapper-col="wrapperCol">
+          <a-form-item label="用户名称">
+            <a-input placeholder="请输入用户名称" v-model:value="user.username"
+          /></a-form-item>
+          <a-form-item label="用户昵称">
+            <a-input
+              placeholder="请输入用户昵称"
+              v-model:value="user.nickName"
+            />
+          </a-form-item>
+          <a-form-item label="用户性别">
+            <a-radio-group v-model:value="user.sex">
+              <a-radio-button value="1">男</a-radio-button>
+              <a-radio-button value="2">女</a-radio-button>
+            </a-radio-group>
+          </a-form-item>
+          <a-form-item label="出生日期">
+            <a-date-picker format="YYYY-MM-DD" v-model:value="user.birthday" />
+          </a-form-item>
+        </a-form>
+      </a-modal>
+    </div>
+  </section>
+</template>
+<script>
+import http from "../../utils/http";
+import moment from "moment";
+// 表头配置
+const columns = [
+  {
+    title: "用户名称",
+    dataIndex: "username",
+    slots: { customRender: "username" },
+  },
+  {
+    title: "昵称",
+    dataIndex: "nickName",
+    slots: { customRender: "nickName" },
+  },
+  {
+    title: "性别",
+    dataIndex: "sex",
+    slots: { customRender: "sex" },
+  },
+  {
+    title: "出生日期",
+    dataIndex: "birthday",
+    slots: { customRender: "birthday" },
+  },
+  {
+    title: "备注信息",
+    dataIndex: "remark",
+    slots: { customRender: "remark" },
+  },
+  {
+    title: "角色状态",
+    //className: "column-projetInfo",
+    dataIndex: "status",
+    slots: { customRender: "status" },
+  },
+  //   {
+  //     title: "Address",
+  //     dataIndex: "address",
+  //   },
+  {
+    title: "Action",
+    key: "action",
+    slots: { customRender: "action" },
+  },
+];
+export default {
+  name: "SettingRoles",
+  data() {
+    return {
+      wtitle: "添加",
+      data: [],
+      columns,
+      addEditVisible: false,
+      confirmLoading: false,
+      user: {
+        id: "",
+        name: "",
+        statusChecked: true,
+      },
+    };
+  },
+  mounted() {
+    this.getList();
+  },
+  methods: {
+    getList() {
+      var _this = this;
+      http("post", "/api-user/busi/user/list")
+        .then(function (data) {
+          console.log(data);
+          if (data != null && data.length > 0) {
+            _this.data = data;
+          }
+        })
+        .catch(function (e) {
+          console.error(e);
+        });
+    },
+    deleteProject: function (id) {
+      var _this = this;
+      http("get", "/api-user/busi/user/delete", { id: id })
+        .then(function (data) {
+          console.log(data);
+          _this.getList();
+        })
+        .catch(function (e) {
+          console.error(e);
+        });
+    },
+    editProject: function (row) {
+      if (row.status == "1") {
+        row.statusChecked = true;
+      } else {
+        row.statusChecked = false;
+      }
+      let user = JSON.parse(JSON.stringify(row));
+      user.birthday = moment(user.birthday).format("YYYY/MM/DD HH:mm:ss");
+      this.showWindows("编辑用户", user);
+    },
+    addProjet() {
+      this.showWindows("添加用户", {});
+    },
+    showWindows: function (title, row) {
+      console.log(row);
+      this.user = row;
+      this.wtitle = title;
+      this.addEditVisible = true;
+    },
+    formatTime: function (text) {
+      console.log(text);
+      return moment(text).format("YYYY/MM/DD HH:mm:ss");
+    },
+    handleOk() {
+      console.log(this.user);
+      this.confirmLoading = true;
+      var _this = this;
+      this.user.birthday = moment(this.user.birthday).unix() * 1000;
+      http("post", "/api-user/busi/user/save", this.user)
+        .then(function (data) {
+          console.log(data);
+          _this.addEditVisible = false;
+          _this.confirmLoading = false;
+          _this.getList();
+        })
+        .catch(function (e) {
+          console.error(e);
+          _this.confirmLoading = false;
+        });
+    },
+  },
+};
+</script>
+<style>
+th.column-money,
+td.column-money {
+  text-align: right !important;
+}
+.add-button {
+  text-align: right;
+  margin-bottom: 10px;
+}
+.onSelect {
+  -moz-user-select: -moz-none;
+  user-select: none;
+}
+</style>

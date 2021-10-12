@@ -50,9 +50,8 @@
               <a-menu-item key="3" @click="to('/setting/program')"
                 >工程维护</a-menu-item
               > -->
-              <a-menu-item key="3" @click="to('/setting/roles')"
-                >角色维护</a-menu-item
-              >
+              <a-menu-item key="3" @click="to('/setting/roles')">角色维护</a-menu-item>
+              <a-menu-item key="4" @click="to('/setting/users')">用户管理</a-menu-item>
             </a-sub-menu>
           </a-menu>
         </a-layout-sider>
@@ -87,7 +86,7 @@ export default {
     },
   },
   beforeCreate() {
-    this.$router.push({ path: "/setting/roles" });
+    //this.$router.push({ path: "/setting/roles" });
   },
 };
 </script>
