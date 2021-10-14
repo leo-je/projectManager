@@ -41,20 +41,14 @@
               <template #title>
                 <span><user-outlined />系统维护</span>
               </template>
-              <!-- <a-menu-item key="1" @click="to('/setting/demand')"
-                >需求管理</a-menu-item
-              >
-              <a-menu-item key="2" @click="to('/setting/project')"
-                >项目维护</a-menu-item
-              >
-              <a-menu-item key="3" @click="to('/setting/program')"
-                >工程维护</a-menu-item
-              > -->
-              <a-menu-item key="3" @click="to('/setting/roles')"
+              <a-menu-item key="roles" @click="to('/setting/roles')"
                 >角色维护</a-menu-item
               >
               <a-menu-item key="4" @click="to('/setting/users')"
                 >用户管理</a-menu-item
+              >
+              <a-menu-item key="5" @click="to('/setting/groups')"
+                >用户组管理</a-menu-item
               >
             </a-sub-menu>
           </a-menu>
@@ -97,11 +91,11 @@ export default {
     this.$store
       .dispatch("LoginByUsername", {})
       .then(() => {
-        console.log("user",this.user);
+        console.log("user", this.user);
         let user = sessionStorage.getItem("user");
-        user = JSON.parse(user)
+        user = JSON.parse(user);
         // this.user = JSON.parse(user)
-        this.user = Object.assign(this.user,user)
+        this.user = Object.assign(this.user, user);
       })
       .catch((e) => {
         console.error("dash", e);
@@ -146,7 +140,7 @@ export default {
 }
 
 #nickName {
-  font-size:16px;
+  font-size: 16px;
   color: aquamarine;
 }
 </style>
