@@ -66,6 +66,30 @@
           <a-form-item label="出生日期">
             <a-date-picker format="YYYY-MM-DD" v-model:value="user.birthday" />
           </a-form-item>
+          <a-form-item label="主岗">
+            <a-row>
+              <a-col :span="11">
+                <a-select
+                  placeholder="请选择主岗"
+                  v-model:value="user.mainRole"
+                  :options="mainRoleOptions.data"
+                />
+              </a-col>
+              <a-col :span="2"> </a-col>
+              <a-col :span="11">
+                <a-tree-select
+                  v-model:value="user.mainRoleGroup"
+                  style="width: 100%"
+                  :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
+                  :tree-data="mainRoleGroupOptions.data"
+                  :replace-fields="mainRoleGroupOptions.replaceFields"
+                  placeholder="请选择主岗组织"
+                  tree-default-expand-all
+                >
+                </a-tree-select>
+              </a-col>
+            </a-row>
+          </a-form-item>
         </a-form>
       </a-modal>
     </div>
@@ -131,12 +155,67 @@ export default {
         name: "",
         statusChecked: true,
       },
+      mainRoleOptions: {
+        data: null,
+      },
+      mainRoleGroupOptions: {
+        replaceFields: {
+          title: "name",
+          key: "id",
+        },
+        data: null,
+      },
     };
   },
   mounted() {
     this.getList();
+    this.getOptions();
   },
   methods: {
+    getOptions() {
+      let _this = this;
+      // roles
+      http("post", "/api-user/busi/roles/valid/list")
+        .then(function (data) {
+          console.log(data);
+          if (data != null && data.length > 0) {
+            _this.mainRoleOptions.roles = data;
+            _this.mainRoleOptions.data = data.map((role) =>
+              Object.assign({ value: role.id, label: role.name })
+            );
+            console.log(
+              "_this.mainRoleOptions.data",
+              _this.mainRoleOptions.data
+            );
+          }
+        })
+        .catch(function (e) {
+          console.error(e);
+        });
+      // group
+      http("get", "/api-user/busi/group/tree")
+        .then(function (data) {
+          console.log(data);
+          if (data != null) {
+            console.log(_this.mainRoleGroupOptions )
+            let datas = [data];
+            _this.setTreeNodeValue(datas)
+            _this.mainRoleGroupOptions.data = datas;
+
+          }
+        })
+        .catch(function (e) {
+          console.error(e);
+        });
+    },
+    setTreeNodeValue(nodes){
+      nodes.forEach(node => {
+        node.value = node.id
+      if(node.children != null && node.children.length > 0){
+        this.setTreeNodeValue(node.children)
+      }
+      });
+    },
     getList() {
       var _this = this;
       http("post", "/api-user/busi/user/list")
@@ -181,7 +260,6 @@ export default {
       this.addEditVisible = true;
     },
     formatTime: function (text) {
-      console.log(text);
       return moment(text).format("YYYY/MM/DD HH:mm:ss");
     },
     handleOk() {

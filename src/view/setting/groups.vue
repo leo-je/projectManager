@@ -148,7 +148,7 @@ export default defineComponent({
     getList(pid) {
       console.log("getList", this.treeData.selectedKeys);
       var _this = this;
-      http("get", "/api-user/busi/group/list", { pid })
+      http("post", "/api-user/busi/group/all/list", { pid })
         .then(function (data) {
           console.log(data);
             _this.data = data;
