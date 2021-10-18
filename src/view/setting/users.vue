@@ -71,14 +71,14 @@
               <a-col :span="11">
                 <a-select
                   placeholder="请选择主岗"
-                  v-model:value="user.mainRole"
+                  v-model:value="user.mainRole.roleId"
                   :options="mainRoleOptions.data"
                 />
               </a-col>
               <a-col :span="2"> </a-col>
               <a-col :span="11">
                 <a-tree-select
-                  v-model:value="user.mainRoleGroup"
+                  v-model:value="user.mainRole.groupId"
                   style="width: 100%"
                   :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
                   :tree-data="mainRoleGroupOptions.data"
@@ -154,6 +154,10 @@ export default {
         id: "",
         name: "",
         statusChecked: true,
+        mainRole: {
+          roleId: "",
+          groupId: "",
+        },
       },
       mainRoleOptions: {
         data: null,
@@ -197,23 +201,22 @@ export default {
         .then(function (data) {
           console.log(data);
           if (data != null) {
-            console.log(_this.mainRoleGroupOptions )
+            console.log(_this.mainRoleGroupOptions);
             let datas = [data];
-            _this.setTreeNodeValue(datas)
+            _this.setTreeNodeValue(datas);
             _this.mainRoleGroupOptions.data = datas;
-
           }
         })
         .catch(function (e) {
           console.error(e);
         });
     },
-    setTreeNodeValue(nodes){
-      nodes.forEach(node => {
-        node.value = node.id
-      if(node.children != null && node.children.length > 0){
-        this.setTreeNodeValue(node.children)
-      }
+    setTreeNodeValue(nodes) {
+      nodes.forEach((node) => {
+        node.value = node.id;
+        if (node.children != null && node.children.length > 0) {
+          this.setTreeNodeValue(node.children);
+        }
       });
     },
     getList() {
@@ -241,17 +244,35 @@ export default {
         });
     },
     editProject: function (row) {
-      if (row.status == "1") {
-        row.statusChecked = true;
-      } else {
-        row.statusChecked = false;
-      }
-      let user = JSON.parse(JSON.stringify(row));
-      user.birthday = moment(user.birthday).format("YYYY/MM/DD HH:mm:ss");
-      this.showWindows("编辑用户", user);
+      var _this = this;
+      http("post", "/api-user/busi/user/info/" + row.id, {})
+        .then(function (data) {
+          console.log(data);
+          let user = data;
+          user.birthday = moment(user.birthday).format("YYYY/MM/DD HH:mm:ss");
+          if (!user.mainRole) {
+            user.mainRole = {};
+          }
+          if (user.status == "1") {
+            user.statusChecked = true;
+          } else {
+            user.statusChecked = false;
+          }
+          _this.showWindows("编辑用户", user);
+        })
+        .catch(function (e) {
+          console.error(e);
+        });
     },
     addProjet() {
-      this.showWindows("添加用户", {});
+      this.showWindows("添加用户", {
+        mainRole: {
+          id: "",
+          group: {
+            id: "",
+          },
+        },
+      });
     },
     showWindows: function (title, row) {
       console.log(row);

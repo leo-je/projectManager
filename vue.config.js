@@ -16,7 +16,7 @@ module.exports = {
         //}
       },
       '/api-user': {
-        target: 'http://127.0.0.1:8080',   //代理接口（ps:这里为随意打的地址）
+        target: 'http://10.8.10.205:8080',   //代理接口（ps:这里为随意打的地址）
         changeOrigin: true,
         // pathRewrite: {
         // '^/api-user': ''    //代理的路径 //是否移除api三个字段,
