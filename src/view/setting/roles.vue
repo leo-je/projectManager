@@ -106,7 +106,7 @@ export default {
   methods: {
     getList() {
       var _this = this;
-      http("post", "/api-user/busi/roles/list")
+      http("post", "/api-user/busi/roles/all/list")
         .then(function (data) {
           console.log(data);
           if (data != null && data.length > 0) {
